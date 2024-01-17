@@ -2,7 +2,7 @@
 
 ## About
 
-Global analysis of tropical cyclones return period, for anticipatory action 
+Global analysis of tropical cyclones return period, for anticipatory action
 trigger design or monitoring.
 
 ## Reproducing this analysis
