@@ -98,8 +98,8 @@ def calculate_thresholds():
     distances = distances.merge(
         speeds[["row_id", "sid", "wmo_wind"]], on="row_id"
     )
-    d_threshs = range(0, 501, 10)
-    s_threshs = range(0, int(speeds["wmo_wind"].max() + 1), 5)
+    d_threshs = range(0, 401, 10)
+    s_threshs = range(30, int(speeds["wmo_wind"].max() + 1), 5)
 
     dfs = []
     for d_thresh in tqdm(d_threshs):

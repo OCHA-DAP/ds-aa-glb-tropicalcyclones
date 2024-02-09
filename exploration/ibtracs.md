@@ -53,6 +53,10 @@ ibtracs.concat_adm0_distances()
 ```
 
 ```python
+ibtracs.calculate_thresholds()
+```
+
+```python
 speeds = ibtracs.load_ibtracs_with_wmo_wind()
 speeds
 ```

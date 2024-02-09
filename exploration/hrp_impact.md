@@ -28,11 +28,11 @@ from src.datasources import humanitarianinfo, gaul, ibtracs
 ```
 
 ```python
-humanitarianinfo.download_operations_list()
+# humanitarianinfo.download_operations_list()
 ```
 
 ```python
-humanitarianinfo.process_operations_list()
+# humanitarianinfo.process_operations_list()
 ```
 
 ```python
@@ -78,6 +78,10 @@ rp = triggered.groupby("Plans").size().reset_index(name="count")
 rp["count_per_year"] = rp["count"] / total_years
 display(rp)
 print(rp["count_per_year"].mean())
+```
+
+```python
+rp["count"].sum()
 ```
 
 ```python
