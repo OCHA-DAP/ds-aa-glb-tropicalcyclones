@@ -112,6 +112,9 @@ def calculate_thresholds():
             df_add = dff[["sid", "asap0_id"]]
             df_add["d_thresh"] = d_thresh
             df_add["s_thresh"] = s_thresh
+            df_add = df_add.astype(
+                {col: "int32" for col in ["asap0_id", "d_thresh", "s_thresh"]}
+            )
             dfs.append(df_add)
 
     all_thresholds = pd.concat(dfs, ignore_index=True)

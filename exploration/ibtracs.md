@@ -82,6 +82,10 @@ for d_thresh in tqdm(d_threshs):
         df_add = dff[["sid", "asap0_id"]]
         df_add["d_thresh"] = d_thresh
         df_add["s_thresh"] = s_thresh
+        df_add = df_add.astype({
+            col: 'int32' for col in ["asap0_id", "d_thresh", "s_thresh"]
+        })
+        print(df_add.dtypes)
         dfs.append(df_add)
 ```
 
