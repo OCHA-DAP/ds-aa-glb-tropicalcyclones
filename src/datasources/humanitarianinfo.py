@@ -13,6 +13,33 @@ HUMINFO_RAW_DIR = DATA_DIR / "public" / "raw" / "glb" / "humanitarianinfo"
 HUMINFO_PROC_DIR = (
     DATA_DIR / "public" / "processed" / "glb" / "humanitarianinfo"
 )
+HRP_2024_ISO2S = [
+    "AF",
+    "BF",
+    "CM",
+    "CF",
+    "TD",
+    "CO",
+    "CD",
+    "SV",
+    "ET",
+    "GT",
+    "HT",
+    "HN",
+    "ML",
+    "MZ",
+    "MM",
+    "NE",
+    "NG",
+    "PS",
+    "SO",
+    "SS",
+    "SD",
+    "SY",
+    "UA",
+    "VE",
+    "YE",
+]
 
 
 def download_operations_list():
