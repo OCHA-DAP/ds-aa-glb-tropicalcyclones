@@ -65,7 +65,6 @@ hrp
 tracks = ibtracs.load_ibtracs_with_wmo_wind()
 cyclones = tracks.groupby("sid").first().reset_index()
 cyclones["year"] = cyclones["time"].dt.year
-max_year = cyclones["year"].max()
 ```
 
 ```python
@@ -75,33 +74,56 @@ thresholds
 ```
 
 ```python
-d_thresh = 250
-s_thresh = 95
 year_thresh = 2000
+max_year = thresholds["year"].max()
+d_thresh = 250
+major_s_thresh = 95
 total_years = max_year - year_thresh
 
-triggered = thresholds[
+major_triggered = thresholds[
     (thresholds["d_thresh"] == d_thresh)
-    & (thresholds["s_thresh"] == s_thresh)
+    & (thresholds["s_thresh"] == major_s_thresh)
     & (thresholds["year"] >= year_thresh)
 ]
-rp = triggered.groupby("asap0_id").size().reset_index(name="count")
-rp["count_per_year"] = rp["count"] / total_years
+rp = major_triggered.groupby("asap0_id").size().reset_index(name="major_tot")
+rp["major_p_yr"] = rp["major_tot"] / total_years
+
+all_triggered = thresholds[
+    (thresholds["d_thresh"] == d_thresh)
+    & (thresholds["s_thresh"] == thresholds["s_thresh"].min())
+    & (thresholds["year"] >= year_thresh)
+]
+rp_all = all_triggered.groupby("asap0_id").size().reset_index(name="all_tot")
+rp_all["all_p_yr"] = rp_all["all_tot"] / total_years
+
+rp = rp.merge(rp_all[["asap0_id", "all_tot", "all_p_yr"]], on="asap0_id")
+
 rp = rp.merge(
     adm0[["asap0_id", "name0", "isocode", "geometry"]],
     on="asap0_id",
     how="outer",
 )
-cols = ["count", "count_per_year"]
+cols = [
+    "major_tot",
+    "major_p_yr",
+    "all_tot",
+    "all_p_yr",
+]
 rp[cols] = rp[cols].fillna(0)
+cols = [
+    "major_tot",
+    "all_tot",
+]
+rp[cols] = rp[cols].astype(int)
 # tag countries with HRP
-# HRP list taken from 2024 Global HNO
+# Hdf_add list taken from 2024 Global HNO
 # need to manually add Gaza and West Bank since they do not have a isocode
 rp["hrp"] = rp.apply(
     lambda row: row["isocode"] in humanitarianinfo.HRP_2024_ISO2S
     or row["name0"] in ["Gaza Strip", "West Bank"],
     axis=1,
 )
+
 rp = gpd.GeoDataFrame(
     data=rp.drop(columns=["geometry"]), geometry=rp["geometry"]
 )
@@ -112,23 +134,36 @@ rp
 ```
 
 ```python
-rp.hist("count", bins=20)
+filename = "cyclone-count-bycountry-stateofdata2024"
+rp.to_file(ibtracs.IBTRACS_PROC_DIR / filename)
+```
+
+```python
+rp.plot(column="all_count", legend=True)
+```
+
+```python
+rp.hist("all_count", bins=20)
 ```
 
 ```python
 fig, ax = plt.subplots(figsize=(15, 15))
 adm0.boundary.plot(ax=ax, linewidth=0.05, color="k")
 
+rp_plot = rp.copy()
+
 cutoffs = [4, 8]
 
-bins = [-1, 0, *cutoffs, rp["count"].max()]
+bins = [-1, 0, *cutoffs, rp["major_count"].max()]
 labels = [
     "0",
     f"1-{cutoffs[0]}",
     f"{cutoffs[0]+1}-{cutoffs[1]}",
     f">{cutoffs[1]}",
 ]
-rp["count_bins"] = pd.cut(rp["count"], bins=bins, labels=labels)
+rp_plot["count_bins"] = pd.cut(
+    rp_plot["major_count"], bins=bins, labels=labels
+)
 
 hrp_colors = {
     "0": "white",
@@ -143,14 +178,14 @@ nonhrp_colors = {
     f">{cutoffs[1]}": "gray",
 }
 
-rp["plot_color"] = rp.apply(
+rp_plot["plot_color"] = rp_plot.apply(
     lambda row: hrp_colors.get(row["count_bins"])
     if row["hrp"]
     else nonhrp_colors.get(row["count_bins"]),
     axis=1,
 )
 
-rp.plot(color=rp["plot_color"], ax=ax)
+rp_plot.plot(color=rp_plot["plot_color"], ax=ax)
 
 ax.axis("off")
 
@@ -162,5 +197,101 @@ rp[rp["hrp"]]
 ```
 
 ```python
+major_triggered["major"] = True
+```
 
+```python
+all_triggered["major"] = False
+```
+
+```python
+combined_triggered = pd.concat(
+    [major_triggered, all_triggered], ignore_index=True
+)
+combined_triggered = combined_triggered.drop(columns=["d_thresh", "s_thresh"])
+combined_triggered = combined_triggered.drop_duplicates(
+    subset=["sid", "asap0_id"]
+)
+```
+
+```python
+len(major_triggered)
+```
+
+```python
+len(combined_triggered[combined_triggered["major"]])
+```
+
+```python
+len(all_triggered)
+```
+
+```python
+len(combined_triggered)
+```
+
+```python
+combined_triggered
+```
+
+```python
+filename = "cyclone-ids-bycountry.csv"
+combined_triggered.to_csv(ibtracs.IBTRACS_PROC_DIR / filename, index=False)
+```
+
+```python
+all_tracks = ibtracs.load_ibtracs_with_wmo_wind()
+```
+
+```python
+all_tracks
+```
+
+```python
+triggered_tracks = all_tracks[
+    all_tracks["sid"].isin(combined_triggered["sid"].unique())
+]
+triggered_tracks = triggered_tracks.drop(
+    columns=["row_id", "geometry", "name"]
+)
+```
+
+```python
+triggered_tracks
+```
+
+```python
+filename = "cyclone-tracks-closetocountries.csv"
+triggered_tracks.to_csv(ibtracs.IBTRACS_PROC_DIR / filename, index=False)
+```
+
+```python
+tracks = pd.read_csv(
+    ibtracs.IBTRACS_PROC_DIR / "cyclone-tracks-closetocountries.csv"
+)
+cyclones = pd.read_csv(ibtracs.IBTRACS_PROC_DIR / "cyclone-ids-bycountry.csv")
+countries = gpd.read_file(
+    ibtracs.IBTRACS_PROC_DIR / "cyclone-count-bycountry-stateofdata2024"
+)
+countries["hrp"] = countries["hrp"].astype(bool)
+```
+
+```python
+cyclones
+```
+
+```python
+countries
+```
+
+```python
+cyclones = cyclones.merge(countries[["asap0_id", "hrp"]], on="asap0_id")
+cyclones
+```
+
+```python
+hrp_major_cyclones = cyclones[cyclones["hrp"] & cyclones["major"]]
+hrp_major_cyclone_tracks = tracks[
+    tracks["sid"].isin(hrp_major_cyclones["sid"])
+]
 ```

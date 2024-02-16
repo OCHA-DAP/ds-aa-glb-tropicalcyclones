@@ -85,7 +85,6 @@ for d_thresh in tqdm(d_threshs):
         df_add = df_add.astype({
             col: 'int32' for col in ["asap0_id", "d_thresh", "s_thresh"]
         })
-        print(df_add.dtypes)
         dfs.append(df_add)
 ```
 
@@ -149,5 +148,5 @@ display(rp)
 ```
 
 ```python
-rp.loc[250].loc[90]
+
 ```
