@@ -1,6 +1,7 @@
 import os
 import urllib
 from pathlib import Path
+from typing import Literal
 
 import geopandas as gpd
 import pandas as pd
@@ -15,14 +16,14 @@ IBTRACS_RAW_DIR = DATA_DIR / "public" / "raw" / "glb" / "ibtracs"
 IBTRACS_PROC_DIR = DATA_DIR / "public" / "processed" / "glb" / "ibtracs"
 
 
-def download_ibtracs():
+def download_ibtracs(dataset: Literal["ALL", "last3years"] = "ALL"):
     """Download IBTrACS data."""
     url = (
         "https://www.ncei.noaa.gov/data/"
         "international-best-track-archive-for-climate-stewardship-ibtracs/"
-        "v04r00/access/netcdf/IBTrACS.ALL.v04r00.nc"
+        f"v04r00/access/netcdf/IBTrACS.{dataset}.v04r00.nc"
     )
-    download_path = IBTRACS_RAW_DIR / "IBTrACS.ALL.v04r00.nc"
+    download_path = IBTRACS_RAW_DIR / f"IBTrACS.{dataset}.v04r00.nc"
     urllib.request.urlretrieve(url, download_path)
 
 
@@ -32,17 +33,17 @@ def load_all_ibtracs():
     return xr.load_dataset(load_path)
 
 
-def process_all_ibtracs():
+def process_all_ibtracs(wind_source: Literal["usa", "wmo"] = "wmo"):
     ds = load_all_ibtracs()
-    subset_vars = ["sid", "wmo_wind", "name"]
+    subset_vars = ["sid", f"{wind_source}_wind", "name"]
     ds_subset = ds[subset_vars]
     str_vars = ["name", "sid"]
     ds_subset[str_vars] = ds_subset[str_vars].astype(str)
     ds_subset["time"] = ds_subset["time"].astype("datetime64[s]")
     df = ds_subset.to_dataframe().dropna().reset_index()
-    cols = ["time", "lat", "lon", "wmo_wind", "name", "sid"]
+    cols = subset_vars + ["time", "lat", "lon"]
     df = df[cols]
-    filestem = "ibtracs_with_wmo_wind"
+    filestem = f"ibtracs_with_{wind_source}_wind"
     df["row_id"] = df.index
     df.to_parquet(IBTRACS_PROC_DIR / f"{filestem}.parquet", index=False)
 

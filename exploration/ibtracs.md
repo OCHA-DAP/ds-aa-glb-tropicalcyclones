@@ -26,6 +26,7 @@ import os
 from pathlib import Path
 
 import pandas as pd
+import xarray as xr
 from climada.hazard import TCTracks
 from tqdm.notebook import tqdm
 
@@ -38,6 +39,32 @@ DATA_DIR_NEW = Path(os.getenv("AA_DATA_DIR_NEW"))
 
 ```python
 ibtracs.download_ibtracs()
+```
+
+```python
+ibtracs.download_ibtracs(dataset="last3years")
+```
+
+```python
+last3years = xr.load_dataset(
+    ibtracs.IBTRACS_RAW_DIR / "IBTrACS.last3years.v04r00.nc"
+)
+```
+
+```python
+allyears = ibtracs.load_all_ibtracs()
+```
+
+```python
+allyears.isel(storm=-1)
+```
+
+```python
+["f", "f"] + ["dfas", "sdaf"]
+```
+
+```python
+last3years["time"]
 ```
 
 ```python
@@ -59,6 +86,10 @@ ibtracs.calculate_thresholds()
 ```python
 speeds = ibtracs.load_ibtracs_with_wmo_wind()
 speeds
+```
+
+```python
+speeds["time"].max()
 ```
 
 ```python
