@@ -62,15 +62,24 @@ hrp
 ```
 
 ```python
-tracks = ibtracs.load_ibtracs_with_wmo_wind()
+tracks = ibtracs.load_ibtracs_with_wind("usa")
 cyclones = tracks.groupby("sid").first().reset_index()
 cyclones["year"] = cyclones["time"].dt.year
 ```
 
 ```python
-thresholds = ibtracs.load_thresholds()
+thresholds = ibtracs.load_thresholds("usa")
 thresholds = thresholds.merge(cyclones[["sid", "year", "name"]], on="sid")
 thresholds
+```
+
+```python
+# combine Taiwan and China
+thresholds.loc[thresholds["asap0_id"] == 137, "asap0_id"] = 62
+```
+
+```python
+thresholds = thresholds.drop_duplicates()
 ```
 
 ```python
@@ -127,6 +136,7 @@ rp["hrp"] = rp.apply(
 rp = gpd.GeoDataFrame(
     data=rp.drop(columns=["geometry"]), geometry=rp["geometry"]
 )
+rp = rp.sort_values("major_tot", ascending=False)
 ```
 
 ```python
@@ -134,8 +144,19 @@ rp
 ```
 
 ```python
-filename = "cyclone-count-bycountry-stateofdata2024"
-rp.to_file(ibtracs.IBTRACS_PROC_DIR / filename)
+rp.sort_values("major_tot", ascending=False).iloc[:10]
+```
+
+```python
+rp[rp["hrp"]].sort_values("major_tot", ascending=False).iloc[:10]
+```
+
+```python
+filestem = "cyclone-count-bycountry-stateofdata2024-usawind-2000-2023"
+rp.to_file(ibtracs.IBTRACS_PROC_DIR / filestem)
+rp.drop(columns="geometry").to_csv(
+    ibtracs.IBTRACS_PROC_DIR / f"{filestem}.csv", index=False
+)
 ```
 
 ```python

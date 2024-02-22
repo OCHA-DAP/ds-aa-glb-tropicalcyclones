@@ -41,6 +41,11 @@ for _, row in adm0.sort_values("asap0_id").iterrows():
 ```
 
 ```python
+for _, row in adm0.sort_values("name0").iterrows():
+    print(f"{row['asap0_id']}\t{row['name0']}")
+```
+
+```python
 df = emdat.load_raw_emdat()
 
 

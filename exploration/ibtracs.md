@@ -42,10 +42,6 @@ ibtracs.download_ibtracs()
 ```
 
 ```python
-ibtracs.download_ibtracs(dataset="last3years")
-```
-
-```python
 last3years = xr.load_dataset(
     ibtracs.IBTRACS_RAW_DIR / "IBTrACS.last3years.v04r00.nc"
 )
@@ -60,15 +56,11 @@ allyears.isel(storm=-1)
 ```
 
 ```python
-["f", "f"] + ["dfas", "sdaf"]
-```
-
-```python
-last3years["time"]
-```
-
-```python
 ibtracs.process_all_ibtracs()
+```
+
+```python
+ibtracs.process_all_ibtracs("usa")
 ```
 
 ```python
@@ -76,20 +68,38 @@ ibtracs.calculate_adm0_distances()
 ```
 
 ```python
-ibtracs.concat_adm0_distances()
+ibtracs.calculate_adm0_distances(
+    wind_provider="usa", start_year=2000, end_year=2023
+)
 ```
 
 ```python
-ibtracs.calculate_thresholds()
+ibtracs.concat_adm0_distances("usa")
 ```
 
 ```python
-speeds = ibtracs.load_ibtracs_with_wmo_wind()
-speeds
+ibtracs.
 ```
 
 ```python
-speeds["time"].max()
+usa_wind = ibtracs.load_ibtracs_with_wind("usa")
+```
+
+```python
+usa_wind.iloc[-20:]
+```
+
+```python
+ibtracs.concat_adm0_distances("usa")
+```
+
+```python
+ibtracs.calculate_thresholds("usa")
+```
+
+```python
+speeds = ibtracs.load_ibtracs_with_wind("wmo")
+speeds.iloc[-20:]
 ```
 
 ```python
