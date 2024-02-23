@@ -160,7 +160,11 @@ def load_thresholds(
     start_year: int = 2000,
     end_year: int = 2023,
 ):
-    filename = (
-        f"all_adm0_thresholds_{wind_provider}_{start_year}-{end_year}.parquet"
-    )
+    if start_year == 0 and wind_provider == "wmo":
+        filename = "all_adm0_thresholds.parquet"
+    else:
+        filename = (
+            f"all_adm0_thresholds_{wind_provider}"
+            f"_{start_year}-{end_year}.parquet"
+        )
     return pd.read_parquet(IBTRACS_PROC_DIR / filename)
