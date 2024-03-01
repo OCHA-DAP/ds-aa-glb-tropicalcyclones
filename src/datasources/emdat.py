@@ -17,11 +17,6 @@ def load_raw_emdat():
     return pd.read_excel(EMDAT_RAW_DIR / filename)
 
 
-def load_processed_emdat():
-    filename = "emdat-tropicalcyclone-2000-2022-sids.csv"
-    return pd.read_csv(EMDAT_PROC_DIR / filename)
-
-
 def join_emdat_to_ibtracs():
     adm0 = gaul.load_gaul()
     df = load_raw_emdat()

@@ -100,7 +100,7 @@ AFFECTED = "Total Affected"
 ```
 
 ```python
-iso2 = "US"
+iso2 = "FJ"
 asap0_id = adm0[adm0["isocode"] == iso2].iloc[0]["asap0_id"]
 country_name = adm0[adm0["isocode"] == iso2].iloc[0]["name0"]
 year = 2000

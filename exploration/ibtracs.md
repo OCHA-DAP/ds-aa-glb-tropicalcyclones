@@ -98,5 +98,27 @@ ibtracs.calculate_thresholds("usa")
 ```
 
 ```python
+tracks = ibtracs.load_ibtracs_with_wind("wmo")
+cyclones = tracks.groupby("sid").first().reset_index()
+cyclones["year"] = cyclones["time"].dt.year
+cyclones["nameyear"] = cyclones.apply(
+    lambda row: f'{row["name"].capitalize()} {row["year"]}', axis=1
+)
+thresholds = ibtracs.load_thresholds("wmo", 0)
+thresholds = thresholds.merge(
+    cyclones[["sid", "name", "nameyear", "year"]], on="sid"
+)
+thresholds
+```
 
+```python
+cyclones.groupby("year")["sid"].count().plot()
+```
+
+```python
+cyclones[cyclones["year"] >= 1970].groupby("year")["sid"].count().plot()
+```
+
+```python
+cyclones[cyclones["year"] >= 2000].groupby("year")["sid"].count().plot()
 ```
