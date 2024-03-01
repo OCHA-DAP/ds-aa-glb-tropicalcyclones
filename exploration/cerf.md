@@ -69,7 +69,7 @@ damage[damage["iso2"] == "GT"]
 df = cerf.load_cerf_with_iso()
 df = df[df["Emergency"] == "Storm"]
 df["asap0_id"] = df["asap0_id"].astype(int)
-df["year"] = df["Allocation date"].dt.year
+df["allocation_year"] = df["Allocation date"].dt.year
 ```
 
 ```python
@@ -103,10 +103,10 @@ known_sids = {
     ("Haiti", "2016-10-19"): "2016273N13300",
     ("Haiti", "2012-11-26"): "2012296N14283",
     # note: next three are actually for Hanna, Gustav, Ike, and Fay
-    # but only recording Hanna here for simplicity
-    ("Haiti", "2008-12-23"): "2008241N19303",
-    ("Haiti", "2008-11-28"): "2008241N19303",
-    ("Haiti", "2008-09-29"): "2008241N19303",
+    # but only recording Ike here for simplicity
+    ("Haiti", "2008-12-23"): "2008245N17323",
+    ("Haiti", "2008-11-28"): "2008245N17323",
+    ("Haiti", "2008-09-29"): "2008245N17323",
     # note: for Eta and Iota, only listing Eta here
     ("Honduras", "2020-12-09"): "2020306N15288",
     # note: for Batsirai, Emnati, and Freddy,
@@ -179,11 +179,17 @@ def cerf_to_sid(row):
     #     return None
     damage_f = damage[
         (damage["iso2"] == row["iso2"])
-        & damage["Start Year"].isin([row["year"], row["year"] - 1])
+        & damage["Start Year"].isin(
+            [row["allocation_year"], row["allocation_year"] - 1]
+        )
     ]
     thresholds_f = thresholds_recent[
         (thresholds_recent["asap0_id"] == row["asap0_id"])
-        & (thresholds_recent["year"].isin([row["year"], row["year"] - 1]))
+        & (
+            thresholds_recent["year"].isin(
+                [row["allocation_year"], row["allocation_year"] - 1]
+            )
+        )
     ]
 
     if damage_f.empty:
@@ -238,10 +244,6 @@ df_withcyclones = df.merge(cyclones[["sid", "nameyear"]], on="sid")
 ```
 
 ```python
-df_withcyclones[df_withcyclones["Country"] == "Haiti"]
-```
-
-```python
 df["sid"] = df["sid"].fillna("")
 ```
 
@@ -252,4 +254,8 @@ df
 ```python
 filename = "cerf-storms-with-sids-2024-02-27.csv"
 df.to_csv(cerf.CERF_PROC_DIR / filename, index=False)
+```
+
+```python
+
 ```
