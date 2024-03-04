@@ -14,6 +14,7 @@ from src.datasources import gaul
 DATA_DIR = Path(os.getenv("AA_DATA_DIR_NEW"))
 IBTRACS_RAW_DIR = DATA_DIR / "public" / "raw" / "glb" / "ibtracs"
 IBTRACS_PROC_DIR = DATA_DIR / "public" / "processed" / "glb" / "ibtracs"
+MOZ_IBTRACS_PROC_DIR = DATA_DIR / "public" / "processed" / "moz" / "ibtracs"
 
 
 def download_ibtracs(dataset: Literal["ALL", "last3years"] = "ALL"):
