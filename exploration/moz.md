@@ -210,3 +210,11 @@ closest_dates.to_parquet(
 ```python
 len(dff[dff["time"].dt.year >= 2000]["sid"].unique())
 ```
+
+```python
+closest_dates["max_wind_within_100km"].hist()
+```
+
+```python
+
+```

@@ -15,6 +15,8 @@ jupyter:
 
 # ECMWF forecasts
 
+For Solomon Islands only
+
 ```python
 %load_ext jupyter_black
 %load_ext autoreload
@@ -22,6 +24,10 @@ jupyter:
 ```
 
 ```python
+from pathlib import Path
+
+from tqdm.notebook import tqdm
+
 from src.datasources import ibtracs, gaul, ecmwf
 ```
 
@@ -61,4 +67,21 @@ slb_names = thresholds_slb["name"].str.lower().unique()
 
 ```python
 slb_names
+```
+
+```python
+filename_list = list(Path(ecmwf.ECMWF_RAW / "xml").glob("*.xml"))
+```
+
+```python
+for filename in tqdm(filename_list):
+    ecmwf.xml2csv(filename, slb_names)
+```
+
+```python
+ecmwf.process_ecmwf_besttrack_hindcasts()
+```
+
+```python
+forecasts = ecmwf
 ```
